@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/hashicorp/go-plugin v1.4.6
-	github.com/ignite/cli v0.25.3-0.20221209130424-11cf20cfa4f8
+	github.com/ignite/cli v0.25.3-0.20221212140424-46d0214b4955
 	github.com/spf13/cobra v1.6.1
 )
 
