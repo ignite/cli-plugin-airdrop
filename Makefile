@@ -50,7 +50,7 @@ test-race:
 ## test-cover: Run the unit tests and create a coverage html report
 test-cover:
 	@echo Running unit tests and creating coverage report...
-	@VERSION=$(VERSION) go test -mod=readonly -v -timeout 30m -coverprofile=$(COVER_FILE) -covermode=atomic $(PACKAGES)
+	@VERSION=$(VERSION) go test -mod=readonly -v -timeout 30m -coverprofile=$(COVER_FILE) -coverpkg=./... -covermode=atomic $(PACKAGES)
 	@go tool cover -html=$(COVER_FILE) -o $(COVER_HTML_FILE)
 	@rm $(COVER_FILE)
 
