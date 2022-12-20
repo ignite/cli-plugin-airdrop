@@ -5,18 +5,18 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
 )
 
 type (
 	// Snapshot provide a snapshot with all genesis accounts
 	Snapshot struct {
-		NumberAccounts uint64             `json:"num_accounts"`
-		Accounts       map[string]Account `json:"accounts"`
+		NumberAccounts uint64   `json:"num_accounts"`
+		Accounts       Accounts `json:"accounts"`
 	}
 
 	// Account provide fields of snapshot per account
@@ -29,7 +29,18 @@ type (
 		LiquidBalances sdk.Coins `json:"liquid_balance"`
 		Bonded         sdk.Coins `json:"bonded"`
 	}
+
+	// Accounts represents a map of snapshot accounts
+	Accounts map[string]Account
 )
+
+func (a Accounts) getAccount(address string) Account {
+	acc, ok := a[address]
+	if ok {
+		return acc
+	}
+	return newAccount(address)
+}
 
 // newAccount returns a new account.
 func newAccount(address string) Account {
@@ -45,8 +56,11 @@ func newAccount(address string) Account {
 // Generate produce the snapshot of address with the total of atom balance liquid,
 // staked, bounded and unbonding stake
 func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
-	marshaller := encode.Codec()
-	snapshotAccs := make(map[string]Account)
+	var (
+		marshaller   = encode.Codec()
+		snapshotAccs = make(Accounts)
+	)
+
 	var bankGenesis banktypes.GenesisState
 	if len(genState[banktypes.ModuleName]) > 0 {
 		err := marshaller.UnmarshalJSON(genState[banktypes.ModuleName], &bankGenesis)
@@ -55,12 +69,10 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 		}
 	}
 	for _, balance := range bankGenesis.Balances {
-		address := balance.Address
-		acc, ok := snapshotAccs[address]
-		if !ok {
-			acc = newAccount(address)
-		}
-
+		var (
+			address = balance.Address
+			acc     = snapshotAccs.getAccount(address)
+		)
 		acc.LiquidBalances = balance.Coins
 		snapshotAccs[address] = acc
 	}
@@ -73,13 +85,12 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 		}
 	}
 	for _, unbonding := range stakingGenesis.UnbondingDelegations {
-		address := unbonding.DelegatorAddress
-		acc, ok := snapshotAccs[address]
-		if !ok {
-			acc = newAccount(address)
-		}
+		var (
+			address        = unbonding.DelegatorAddress
+			acc            = snapshotAccs.getAccount(address)
+			unbondingStake = sdk.NewInt(0)
+		)
 
-		unbondingStake := sdk.NewInt(0)
 		for _, entry := range unbonding.Entries {
 			unbondingStake = unbondingStake.Add(entry.Balance)
 		}
@@ -95,23 +106,18 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 	}
 
 	for _, delegation := range stakingGenesis.Delegations {
-		address := delegation.DelegatorAddress
-
-		acc, ok := snapshotAccs[address]
-		if !ok {
-			acc = newAccount(address)
-		}
-
-		val := validators[delegation.ValidatorAddress]
-		staked := delegation.Shares.MulInt(val.Tokens).Quo(val.DelegatorShares).RoundInt()
+		var (
+			address = delegation.DelegatorAddress
+			acc     = snapshotAccs.getAccount(address)
+			val     = validators[delegation.ValidatorAddress]
+			staked  = delegation.Shares.MulInt(val.Tokens).Quo(val.DelegatorShares).RoundInt()
+		)
 		acc.Staked = acc.Staked.Add(staked)
-
 		snapshotAccs[address] = acc
 	}
 
-	snapshot := Snapshot{
+	return Snapshot{
 		NumberAccounts: uint64(len(snapshotAccs)),
 		Accounts:       snapshotAccs,
-	}
-	return snapshot, nil
+	}, nil
 }
