@@ -6,8 +6,9 @@ import (
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli-plugin-airdrop/cmd"
 	"github.com/ignite/cli/ignite/services/plugin"
+
+	"github.com/ignite/cli-plugin-airdrop/cmd"
 )
 
 func init() {
