@@ -7,6 +7,5 @@ import (
 
 // Codec creates a new Codec
 func Codec() codec.Codec {
-	interfaceRegistry := types.NewInterfaceRegistry()
-	return codec.NewProtoCodec(interfaceRegistry)
+	return codec.NewProtoCodec(types.NewInterfaceRegistry())
 }

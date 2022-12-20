@@ -3,8 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/server"
+
+	"github.com/ignite/cli-plugin-airdrop/pkg/config"
 
 	"github.com/ignite/cli-plugin-airdrop/pkg/genesis"
 	"github.com/ignite/cli-plugin-airdrop/pkg/snapshot"
@@ -34,10 +34,16 @@ func NewAirdropGenerate() *cobra.Command {
 		Short: "Utility tool to create snapshots for an airdrop",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			airdropConfig := args[0]
-			_ = airdropConfig
+			var (
+				airdropConfig = args[0]
+				inputGenesis  = args[1]
+			)
 
-			inputGenesis := args[1]
+			_, err := config.ParseConfig(airdropConfig)
+			if err != nil {
+				return err
+			}
+
 			genState, err := genesis.GetGenStateFromPath(inputGenesis)
 			if err != nil {
 				return err
@@ -55,7 +61,6 @@ func NewAirdropGenerate() *cobra.Command {
 			}
 
 			cmd.Println(string(snapshotJSON))
-
 			return nil
 		},
 	}
@@ -67,13 +72,6 @@ func NewAirdropRaw() *cobra.Command {
 		Short: "Utility tool to create snapshots for an airdrop",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			serverCtx := server.GetServerContextFromCmd(cmd)
-			config := serverCtx.Config
-			config.SetRoot(clientCtx.HomeDir)
-
-			_ = args[0]
-
 			return nil
 		},
 	}
@@ -85,13 +83,6 @@ func NewAirdropProcess() *cobra.Command {
 		Short: "Utility tool to create snapshots for an airdrop",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			serverCtx := server.GetServerContextFromCmd(cmd)
-			config := serverCtx.Config
-			config.SetRoot(clientCtx.HomeDir)
-
-			_ = args[0]
-
 			return nil
 		},
 	}
@@ -103,13 +94,6 @@ func NewAirdropGenesis() *cobra.Command {
 		Short: "Utility tool to create snapshots for an airdrop",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			serverCtx := server.GetServerContextFromCmd(cmd)
-			config := serverCtx.Config
-			config.SetRoot(clientCtx.HomeDir)
-
-			_ = args[0]
-
 			return nil
 		},
 	}

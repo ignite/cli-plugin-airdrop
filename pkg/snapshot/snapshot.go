@@ -1,8 +1,10 @@
 package snapshot
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
+
+	"cosmossdk.io/math"
+
 	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,21 +13,21 @@ import (
 )
 
 type (
+	// Snapshot provide a snapshot with all genesis accounts
 	Snapshot struct {
 		NumberAccounts uint64             `json:"num_accounts"`
 		Accounts       map[string]Account `json:"accounts"`
 	}
 
 	// Account provide fields of snapshot per account
-	// It is the simplified struct we are presenting in this 'balances from state export' snapshot for people.
+	// It is the simplified struct we are presenting
+	// in this 'balances from state export' snapshot for people.
 	Account struct {
-		Address             string               `json:"address"`
-		LiquidBalances      sdk.Coins            `json:"liquid_balance"`
-		Staked              math.Int             `json:"staked"`
-		UnbondingStake      math.Int             `json:"unbonding_stake"`
-		Bonded              sdk.Coins            `json:"bonded"`
-		BondedBySelectPools map[uint64]sdk.Coins `json:"bonded_by_select_pools"`
-		TotalBalances       sdk.Coins            `json:"total_balances"`
+		Address        string    `json:"address"`
+		Staked         math.Int  `json:"staked"`
+		UnbondingStake math.Int  `json:"unbonding_stake"`
+		LiquidBalances sdk.Coins `json:"liquid_balance"`
+		Bonded         sdk.Coins `json:"bonded"`
 	}
 )
 
@@ -33,21 +35,21 @@ type (
 func newAccount(address string) Account {
 	return Account{
 		Address:        address,
-		LiquidBalances: sdk.Coins{},
 		Staked:         math.ZeroInt(),
 		UnbondingStake: math.ZeroInt(),
-		Bonded:         sdk.Coins{},
+		LiquidBalances: sdk.NewCoins(),
+		Bonded:         sdk.NewCoins(),
 	}
 }
 
+// Generate produce the snapshot of address with the total of atom balance liquid,
+// staked, bounded and unbonding stake
 func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
-	// Produce the map of address to total atom balance, both staked and UnbondingStake
-	//codec := encode.MakeEncodingConfig()
-	marshaler := encode.Codec()
+	marshaller := encode.Codec()
 	snapshotAccs := make(map[string]Account)
 	var bankGenesis banktypes.GenesisState
 	if len(genState[banktypes.ModuleName]) > 0 {
-		err := marshaler.UnmarshalJSON(genState[banktypes.ModuleName], &bankGenesis)
+		err := marshaller.UnmarshalJSON(genState[banktypes.ModuleName], &bankGenesis)
 		if err != nil {
 			return Snapshot{}, err
 		}
@@ -65,7 +67,7 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 
 	var stakingGenesis stakingtypes.GenesisState
 	if len(genState[stakingtypes.ModuleName]) > 0 {
-		err := marshaler.UnmarshalJSON(genState[stakingtypes.ModuleName], &stakingGenesis)
+		err := marshaller.UnmarshalJSON(genState[stakingtypes.ModuleName], &stakingGenesis)
 		if err != nil {
 			return Snapshot{}, err
 		}
@@ -77,12 +79,12 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 			acc = newAccount(address)
 		}
 
-		unbondingValue := math.NewInt(0)
+		unbondingStake := sdk.NewInt(0)
 		for _, entry := range unbonding.Entries {
-			unbondingValue = unbondingValue.Add(entry.Balance)
+			unbondingStake = unbondingStake.Add(entry.Balance)
 		}
 
-		acc.UnbondingStake = acc.UnbondingStake.Add(unbondingValue)
+		acc.UnbondingStake = acc.UnbondingStake.Add(unbondingStake)
 		snapshotAccs[address] = acc
 	}
 
@@ -102,33 +104,14 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 
 		val := validators[delegation.ValidatorAddress]
 		staked := delegation.Shares.MulInt(val.Tokens).Quo(val.DelegatorShares).RoundInt()
-
 		acc.Staked = acc.Staked.Add(staked)
 
 		snapshotAccs[address] = acc
 	}
 
-	// convert balances to underlying coins and sum up balances to total balance
-	//for addr, account := range snapshotAccs {
-	// All pool shares are in liquid balances OR bonded balances (locked),
-	// therefore underlyingCoinsForSelectPools on liquidBalances + bondedBalances
-	// will include everything that is in one of those two pools.
-	//account.BondedBySelectPools = underlyingCoinsForSelectPools(
-	//	account.LiquidBalances.Add(account.Bonded...), pools, selectBondedPoolIDs)
-	//account.LiquidBalances = underlyingCoins(account.LiquidBalances, pools)
-	//account.Bonded = underlyingCoins(account.Bonded, pools)
-	//account.TotalBalances = sdk.NewCoins().
-	//	Add(account.LiquidBalances...).
-	//	Add(sdk.NewCoin(appparams.BaseCoinUnit, account.Staked)).
-	//	Add(sdk.NewCoin(appparams.BaseCoinUnit, account.UnbondingStake)).
-	//	Add(account.Bonded...)
-	//snapshotAccs[addr] = account
-	//}
-
 	snapshot := Snapshot{
 		NumberAccounts: uint64(len(snapshotAccs)),
 		Accounts:       snapshotAccs,
 	}
-
 	return snapshot, nil
 }

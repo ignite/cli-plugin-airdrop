@@ -1,15 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli-plugin-airdrop/cmd"
 )
 
+var rootCmd = &cobra.Command{
+	Use:   "cli-plugin-airdrop",
+	Short: "debug command for CLI airdrop plugin",
+}
+
 func main() {
-	rootCmd := cmd.NewAirdrop()
-	if err := svrcmd.Execute(rootCmd, "", ""); err != nil {
+	rootCmd.AddCommand(cmd.NewAirdrop())
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
