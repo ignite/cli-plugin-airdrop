@@ -27,7 +27,6 @@ type (
 		Staked         math.Int  `json:"staked"`
 		UnbondingStake math.Int  `json:"unbonding_stake"`
 		LiquidBalances sdk.Coins `json:"liquid_balance"`
-		Bonded         sdk.Coins `json:"bonded"`
 	}
 
 	// Accounts represents a map of snapshot accounts
@@ -49,7 +48,6 @@ func newAccount(address string) Account {
 		Staked:         math.ZeroInt(),
 		UnbondingStake: math.ZeroInt(),
 		LiquidBalances: sdk.NewCoins(),
-		Bonded:         sdk.NewCoins(),
 	}
 }
 

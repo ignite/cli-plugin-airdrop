@@ -1,0 +1,63 @@
+{
+  "app_state": {
+    "auth": {
+      "accounts": [
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "cosmos1ph572zegdp0s8uhmqc5q4j8h2t8wtwmevte8zw",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "cosmos1dgez7sgugzf23c6p97vhllem0lahate6gyx06n",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        }
+      ]
+    },
+    "bank": {
+      "balances": [
+        {
+          "address": "cosmos1ph572zegdp0s8uhmqc5q4j8h2t8wtwmevte8zw",
+          "coins": [
+            {
+              "denom": "stake",
+              "amount": "200000000"
+            },
+            {
+              "denom": "token",
+              "amount": "20000"
+            }
+          ]
+        },
+        {
+          "address": "cosmos1dgez7sgugzf23c6p97vhllem0lahate6gyx06n",
+          "coins": [
+            {
+              "denom": "stake",
+              "amount": "100000000"
+            },
+            {
+              "denom": "token",
+              "amount": "10000"
+            }
+          ]
+        }
+      ],
+      "supply": [],
+      "denom_metadata": []
+    },
+    "staking": {
+      "delegations": [],
+      "exported": false,
+      "last_total_power": "0",
+      "last_validator_powers": [],
+      "redelegations": [],
+      "unbonding_delegations": [],
+      "validators": []
+    }
+  }
+}

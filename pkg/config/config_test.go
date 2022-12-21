@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -55,13 +56,19 @@ func TestParseConfig(t *testing.T) {
 			filename: sampleConfigPath,
 			want:     sampleConfig,
 		},
+		{
+			name:     "valid config file",
+			filename: "invalid_file_path",
+			want:     sampleConfig,
+			err:      errors.New("open invalid_file_path: no such file or directory"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseConfig(tt.filename)
 			if tt.err != nil {
 				require.Error(t, err)
-				require.ErrorIs(t, tt.err, err)
+				require.EqualError(t, err, tt.err.Error())
 				return
 			}
 			require.NoError(t, err)
