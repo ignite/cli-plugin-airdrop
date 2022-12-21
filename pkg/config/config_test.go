@@ -44,6 +44,7 @@ func TestParseConfig(t *testing.T) {
 	require.NoError(t, err)
 	sampleConfigPath := filepath.Join(t.TempDir(), "config.yml")
 	err = os.WriteFile(sampleConfigPath, yamlData, 0o644)
+	require.NoError(t, err)
 
 	tests := []struct {
 		name     string
