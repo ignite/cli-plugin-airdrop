@@ -1,15 +1,9 @@
 package snapshot
 
 import (
-	"encoding/json"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
 )
 
 type (
@@ -33,14 +27,6 @@ type (
 	Accounts map[string]Account
 )
 
-func (a Accounts) getAccount(address string) Account {
-	acc, ok := a[address]
-	if ok {
-		return acc
-	}
-	return newAccount(address)
-}
-
 // newAccount returns a new account.
 func newAccount(address string) Account {
 	return Account{
@@ -51,71 +37,40 @@ func newAccount(address string) Account {
 	}
 }
 
-// Generate produce the snapshot of address with the total of atom balance liquid,
-// staked, bounded and unbonding stake
-func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
-	var (
-		marshaller   = encode.Codec()
-		snapshotAccs = make(Accounts)
-	)
+// getAccount get an existing account or generate a new one
+func (a Accounts) getAccount(address string) Account {
+	acc, ok := a[address]
+	if ok {
+		return acc
+	}
+	return newAccount(address)
+}
 
-	var bankGenesis banktypes.GenesisState
-	if len(genState[banktypes.ModuleName]) > 0 {
-		err := marshaller.UnmarshalJSON(genState[banktypes.ModuleName], &bankGenesis)
-		if err != nil {
-			return Snapshot{}, err
+// ExcludeAddress exclude an address from the accounts
+func (a Accounts) ExcludeAddress(address string) {
+	for accAddress := range a {
+		if accAddress == address {
+			delete(a, accAddress)
 		}
 	}
-	for _, balance := range bankGenesis.Balances {
-		var (
-			address = balance.Address
-			acc     = snapshotAccs.getAccount(address)
-		)
-		acc.LiquidBalances = balance.Coins
-		snapshotAccs[address] = acc
-	}
+}
 
-	var stakingGenesis stakingtypes.GenesisState
-	if len(genState[stakingtypes.ModuleName]) > 0 {
-		err := marshaller.UnmarshalJSON(genState[stakingtypes.ModuleName], &stakingGenesis)
-		if err != nil {
-			return Snapshot{}, err
+// ExcludeAddresses exclude an address list from the accounts
+func (a Accounts) ExcludeAddresses(addresses ...string) {
+	for _, address := range addresses {
+		a.ExcludeAddress(address)
+	}
+}
+
+// FilterDenom filter balance by denom
+func (a Accounts) FilterDenom(denom string) {
+	for address, account := range a {
+		found, liquidBalance := account.LiquidBalances.Find(denom)
+		if found {
+			account.LiquidBalances = sdk.NewCoins(liquidBalance)
+		} else {
+			account.LiquidBalances = sdk.NewCoins()
 		}
+		a[address] = account
 	}
-	for _, unbonding := range stakingGenesis.UnbondingDelegations {
-		var (
-			address        = unbonding.DelegatorAddress
-			acc            = snapshotAccs.getAccount(address)
-			unbondingStake = sdk.NewInt(0)
-		)
-
-		for _, entry := range unbonding.Entries {
-			unbondingStake = unbondingStake.Add(entry.Balance)
-		}
-
-		acc.UnbondingStake = acc.UnbondingStake.Add(unbondingStake)
-		snapshotAccs[address] = acc
-	}
-
-	// Make a map from validator operator address to the v036 validator type
-	validators := make(map[string]stakingtypes.Validator)
-	for _, validator := range stakingGenesis.Validators {
-		validators[validator.OperatorAddress] = validator
-	}
-
-	for _, delegation := range stakingGenesis.Delegations {
-		var (
-			address = delegation.DelegatorAddress
-			acc     = snapshotAccs.getAccount(address)
-			val     = validators[delegation.ValidatorAddress]
-			staked  = delegation.Shares.MulInt(val.Tokens).Quo(val.DelegatorShares).RoundInt()
-		)
-		acc.Staked = acc.Staked.Add(staked)
-		snapshotAccs[address] = acc
-	}
-
-	return Snapshot{
-		NumberAccounts: uint64(len(snapshotAccs)),
-		Accounts:       snapshotAccs,
-	}, nil
 }
