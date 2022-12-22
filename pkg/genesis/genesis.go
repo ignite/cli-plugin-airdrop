@@ -5,14 +5,36 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	claimtypes "github.com/ignite/modules/x/claim/types"
+	"github.com/pkg/errors"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	tmjson "github.com/tendermint/tendermint/libs/json"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-type GenState map[string]json.RawMessage
+type (
+	// GenState defines the initial conditions for a tendermint blockchain, in particular its validator set.
+	GenState struct {
+		GenesisTime     time.Time                  `json:"genesis_time"`
+		ChainID         string                     `json:"chain_id"`
+		InitialHeight   int64                      `json:"initial_height"`
+		ConsensusParams *tmproto.ConsensusParams   `json:"consensus_params,omitempty"`
+		Validators      []tmtypes.GenesisValidator `json:"validators,omitempty"`
+		AppHash         tmbytes.HexBytes           `json:"app_hash"`
+		AppState        AppState                   `json:"app_state,omitempty"`
+	}
 
-// GetGenStateFromPath returns a JSON genState message from inputted path.
+	// AppState defines a genesis app state.
+	AppState map[string]json.RawMessage
+)
+
+// GetGenStateFromPath returns a JSON genesis state message from inputted path.
 func GetGenStateFromPath(genesisFilePath string) (genState GenState, err error) {
 	genesisFile, err := os.Open(filepath.Clean(genesisFilePath))
 	if err != nil {
@@ -25,15 +47,26 @@ func GetGenStateFromPath(genesisFilePath string) (genState GenState, err error) 
 		return genState, err
 	}
 
-	var doc tmtypes.GenesisDoc
-	err = tmjson.Unmarshal(byteValue, &doc)
-	if err != nil {
-		return genState, err
+	return genState, tmjson.Unmarshal(byteValue, &genState)
+}
+
+// AddFromClaimRecord add a claim record to the genesis state.
+func (g GenState) AddFromClaimRecord(denom string, claimRecords []claimtypes.ClaimRecord) error {
+	claimGenesis := claimtypes.GenesisState{
+		ClaimRecords:  claimRecords,
+		AirdropSupply: sdk.NewCoin(denom, math.ZeroInt()),
+	}
+	for _, claimRecord := range claimRecords {
+		claimGenesis.AirdropSupply.Add(sdk.NewCoin(denom, claimRecord.Claimable))
+	}
+	if len(g.AppState[claimtypes.ModuleName]) > 0 {
+		return errors.New("claim record state already exist into the genesis")
 	}
 
-	err = json.Unmarshal(doc.AppState, &genState)
+	claimBytes, err := json.Marshal(claimGenesis)
 	if err != nil {
-		return genState, err
+		return err
 	}
-	return genState, nil
+	g.AppState[claimtypes.ModuleName] = claimBytes
+	return nil
 }

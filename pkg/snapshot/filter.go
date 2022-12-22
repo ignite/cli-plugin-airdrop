@@ -25,6 +25,15 @@ const (
 	Liquidity = "liquidity"
 )
 
+// ClaimRecords return a list of claim records
+func (f Filter) ClaimRecords() []claimtypes.ClaimRecord {
+	result := make([]claimtypes.ClaimRecord, 0)
+	for _, filter := range f {
+		result = append(result, filter)
+	}
+	return result
+}
+
 // Sum sum all filters into one
 func (f Filters) Sum() Filter {
 	result := make(Filter)

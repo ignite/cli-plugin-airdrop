@@ -48,7 +48,7 @@ func NewAirdropGenerate() *cobra.Command {
 				return err
 			}
 
-			s, err := snapshot.Generate(genState)
+			s, err := snapshot.Generate(genState.AppState)
 			if err != nil {
 				return err
 			}
@@ -60,14 +60,17 @@ func NewAirdropGenerate() *cobra.Command {
 			}
 			filter := filters.Sum()
 
+			if err := genState.AddFromClaimRecord(c.AirdropToken, filter.ClaimRecords()); err != nil {
+				return err
+			}
+
 			// export snapshot json
-			filterJSON, err := json.MarshalIndent(filter, "", "    ")
+			genesisJSON, err := json.MarshalIndent(genState, "", "    ")
 			if err != nil {
 				return fmt.Errorf("failed to marshal snapshot: %w", err)
 			}
 
-			cmd.Println(string(filterJSON))
-			// TODO generate the genesis
+			cmd.Println(string(genesisJSON))
 			return nil
 		},
 	}
@@ -84,7 +87,7 @@ func NewAirdropRaw() *cobra.Command {
 				return err
 			}
 
-			s, err := snapshot.Generate(genState)
+			s, err := snapshot.Generate(genState.AppState)
 			if err != nil {
 				return err
 			}

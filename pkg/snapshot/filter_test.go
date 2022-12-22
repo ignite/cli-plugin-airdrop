@@ -228,6 +228,77 @@ func TestFilters_Sum(t *testing.T) {
 	}
 }
 
+func TestFilter_ClaimRecords(t *testing.T) {
+	var (
+		accAddr1 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr2 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr3 = sdk.AccAddress(rand.Str(32)).String()
+	)
+
+	tests := []struct {
+		name string
+		f    Filter
+		want []claimtypes.ClaimRecord
+	}{
+		{
+			name: "list of one claim record",
+			f: Filter{
+				accAddr1: claimtypes.ClaimRecord{
+					Address: accAddr1,
+				},
+			},
+			want: []claimtypes.ClaimRecord{
+				{Address: accAddr1},
+			},
+		},
+		{
+			name: "list of one claim record",
+			f: Filter{
+				accAddr1: claimtypes.ClaimRecord{
+					Address: accAddr1,
+				},
+				accAddr2: claimtypes.ClaimRecord{
+					Address: accAddr2,
+				},
+			},
+			want: []claimtypes.ClaimRecord{
+				{Address: accAddr1},
+				{Address: accAddr2},
+			},
+		},
+		{
+			name: "list of one claim record",
+			f: Filter{
+				accAddr1: claimtypes.ClaimRecord{
+					Address: accAddr1,
+				},
+				accAddr2: claimtypes.ClaimRecord{
+					Address: accAddr2,
+				},
+				accAddr3: claimtypes.ClaimRecord{
+					Address: accAddr3,
+				},
+			},
+			want: []claimtypes.ClaimRecord{
+				{Address: accAddr1},
+				{Address: accAddr2},
+				{Address: accAddr3},
+			},
+		},
+		{
+			name: "empty list",
+			f:    Filter{},
+			want: []claimtypes.ClaimRecord{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.f.ClaimRecords()
+			require.EqualValues(t, tt.want, got)
+		})
+	}
+}
+
 func TestSnapshot_Filter(t *testing.T) {
 	type args struct {
 		filterType        FilterType
