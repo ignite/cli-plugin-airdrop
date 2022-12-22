@@ -38,6 +38,7 @@ const (
 
 // Sum sum all filters into one
 func (f Filters) Sum() (result Filter) {
+	result.Amounts = make(Amounts)
 	for _, filter := range f {
 		for _, amount := range filter.Amounts {
 			resultAmount := result.Amounts.getAmount(amount.Address)

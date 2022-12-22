@@ -67,9 +67,7 @@ func NewAirdropGenerate() *cobra.Command {
 			}
 
 			cmd.Println(string(filterJSON))
-
 			// TODO generate the genesis
-
 			return nil
 		},
 	}
@@ -131,14 +129,13 @@ func NewAirdropProcess() *cobra.Command {
 			}
 			filter := filters.Sum()
 
-			// export snapshot json
+			// export filter json
 			filterJSON, err := json.MarshalIndent(filter, "", "    ")
 			if err != nil {
 				return fmt.Errorf("failed to marshal snapshot: %w", err)
 			}
 
 			cmd.Println(string(filterJSON))
-
 			return nil
 		},
 	}
