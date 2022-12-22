@@ -38,7 +38,7 @@ func NewAirdropGenerate() *cobra.Command {
 				inputGenesis  = args[1]
 			)
 
-			_, err := config.ParseConfig(airdropConfig)
+			c, err := config.ParseConfig(airdropConfig)
 			if err != nil {
 				return err
 			}
@@ -53,15 +53,22 @@ func NewAirdropGenerate() *cobra.Command {
 				return err
 			}
 
+			filters := make(snapshot.Filters, 0)
+			for _, snap := range c.Snapshots {
+				filter := s.Filter(snapshot.FilterType(snap.Type), snap.Denom, snap.Formula, snap.Excluded)
+				filters = append(filters, filter)
+			}
+			filter := filters.Sum()
+
 			// export snapshot json
-			snapshotJSON, err := json.MarshalIndent(s, "", "    ")
+			filterJSON, err := json.MarshalIndent(filter, "", "    ")
 			if err != nil {
 				return fmt.Errorf("failed to marshal snapshot: %w", err)
 			}
 
-			cmd.Println(string(snapshotJSON))
+			cmd.Println(string(filterJSON))
 
-			// TODO apply config filter and generate the genesis
+			// TODO generate the genesis
 
 			return nil
 		},
@@ -102,6 +109,36 @@ func NewAirdropProcess() *cobra.Command {
 		Short: "Process the airdrop data based on the config file",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var (
+				airdropConfig = args[0]
+				rawSnapshot   = args[1]
+			)
+
+			c, err := config.ParseConfig(airdropConfig)
+			if err != nil {
+				return err
+			}
+
+			s, err := snapshot.ParseSnapshot(rawSnapshot)
+			if err != nil {
+				return err
+			}
+
+			filters := make(snapshot.Filters, 0)
+			for _, snap := range c.Snapshots {
+				filter := s.Filter(snapshot.FilterType(snap.Type), snap.Denom, snap.Formula, snap.Excluded)
+				filters = append(filters, filter)
+			}
+			filter := filters.Sum()
+
+			// export snapshot json
+			filterJSON, err := json.MarshalIndent(filter, "", "    ")
+			if err != nil {
+				return fmt.Errorf("failed to marshal snapshot: %w", err)
+			}
+
+			cmd.Println(string(filterJSON))
+
 			return nil
 		},
 	}

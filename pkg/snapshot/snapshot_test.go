@@ -1,6 +1,10 @@
 package snapshot
 
 import (
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -8,6 +12,79 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/rand"
 )
+
+func TestParseSnapshot(t *testing.T) {
+	var (
+		accAddr1 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr2 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr3 = sdk.AccAddress(rand.Str(32)).String()
+	)
+	sampleConfig := Snapshot{
+		NumberAccounts: 3,
+		Accounts: Accounts{
+			accAddr1: {
+				Address:        accAddr1,
+				Staked:         math.NewInt(1),
+				UnbondingStake: math.NewInt(53425),
+				LiquidBalances: sdk.NewCoins(
+					sdk.NewCoin("stake", math.NewInt(200000000)),
+					sdk.NewCoin("token", math.NewInt(20000)),
+				),
+			},
+			accAddr2: {
+				Address:        accAddr2,
+				Staked:         math.NewInt(41581980),
+				UnbondingStake: math.NewInt(50000),
+				LiquidBalances: sdk.NewCoins(
+					sdk.NewCoin("stake", math.NewInt(100000000)),
+					sdk.NewCoin("token", math.NewInt(10000)),
+				),
+			},
+			accAddr3: {
+				Address:        accAddr3,
+				Staked:         math.NewInt(1),
+				UnbondingStake: math.NewInt(6985000),
+				LiquidBalances: sdk.NewCoins(),
+			},
+		},
+	}
+	yamlData, err := json.Marshal(&sampleConfig)
+	require.NoError(t, err)
+	sampleConfigPath := filepath.Join(t.TempDir(), "config.yml")
+	err = os.WriteFile(sampleConfigPath, yamlData, 0o644)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name     string
+		filename string
+		want     Snapshot
+		err      error
+	}{
+		{
+			name:     "valid snapshot file",
+			filename: sampleConfigPath,
+			want:     sampleConfig,
+		},
+		{
+			name:     "valid snapshot file",
+			filename: "invalid_file_path",
+			want:     sampleConfig,
+			err:      errors.New("open invalid_file_path: no such file or directory"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseSnapshot(tt.filename)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.EqualError(t, err, tt.err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.EqualValues(t, tt.want, got)
+		})
+	}
+}
 
 func TestNewAccount(t *testing.T) {
 	var (
@@ -21,15 +98,21 @@ func TestNewAccount(t *testing.T) {
 }
 
 func TestAccounts_getAccount(t *testing.T) {
+	var (
+		accAddr1 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr2 = sdk.AccAddress(rand.Str(32)).String()
+		accAddr3 = sdk.AccAddress(rand.Str(32)).String()
+	)
+
 	sampleAccounts := Accounts{
-		"address_1": {
-			Address:        "address_1",
+		accAddr1: {
+			Address:        accAddr1,
 			Staked:         math.NewInt(10),
 			UnbondingStake: math.NewInt(10),
 			LiquidBalances: sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(10))),
 		},
-		"address_2": {
-			Address:        "address_2",
+		accAddr2: {
+			Address:        accAddr2,
 			Staked:         math.NewInt(12),
 			UnbondingStake: math.NewInt(12),
 			LiquidBalances: sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(12))),
@@ -44,21 +127,21 @@ func TestAccounts_getAccount(t *testing.T) {
 		{
 			name:    "already exist address 1",
 			a:       sampleAccounts,
-			address: "address_1",
-			want:    sampleAccounts["address_1"],
+			address: accAddr1,
+			want:    sampleAccounts[accAddr1],
 		},
 		{
 			name:    "already exist address 2",
 			a:       sampleAccounts,
-			address: "address_2",
-			want:    sampleAccounts["address_2"],
+			address: accAddr2,
+			want:    sampleAccounts[accAddr2],
 		},
 		{
 			name:    "not exist address",
 			a:       sampleAccounts,
-			address: "address_3",
+			address: accAddr3,
 			want: Account{
-				Address:        "address_3",
+				Address:        accAddr3,
 				Staked:         math.ZeroInt(),
 				UnbondingStake: math.ZeroInt(),
 				LiquidBalances: sdk.NewCoins(),

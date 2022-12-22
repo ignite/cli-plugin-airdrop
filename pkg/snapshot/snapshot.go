@@ -1,6 +1,9 @@
 package snapshot
 
 import (
+	"encoding/json"
+	"os"
+
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,6 +38,20 @@ func newAccount(address string) Account {
 		UnbondingStake: math.ZeroInt(),
 		LiquidBalances: sdk.NewCoins(),
 	}
+}
+
+// ParseSnapshot expects to find and parse a snapshot file.
+func ParseSnapshot(filename string) (c Snapshot, err error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return c, err
+	}
+	defer f.Close()
+
+	if err := json.NewDecoder(f).Decode(&c); err != nil {
+		return c, err
+	}
+	return c, nil
 }
 
 // TotalStake returns a sum of stake and unbounding stake
