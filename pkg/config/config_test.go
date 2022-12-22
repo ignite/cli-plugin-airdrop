@@ -5,10 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
+
+	"cosmossdk.io/math"
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"github.com/ignite/cli-plugin-airdrop/pkg/formula"
 )
 
 func TestParseConfig(t *testing.T) {
@@ -17,24 +20,20 @@ func TestParseConfig(t *testing.T) {
 		DustWallet:   1,
 		Snapshots: []Snapshot{
 			{
-				Types: "staking",
-				Chain: "cosmos-hub",
+				Type:  "staking",
 				Denom: "uatom",
-				Date:  time.Now(),
-				Formula: Formula{
+				Formula: formula.Value{
 					Type:  "quadratic",
-					Value: 2,
+					Value: math.NewInt(2),
 				},
 				Excluded: []string{"cosmos1aqn8ynvr3jmq67879qulzrwhchq5dtrvh6h4er"},
 			},
 			{
-				Types: "liquidity",
-				Chain: "cosmos-hub",
+				Type:  "liquidity",
 				Denom: "uatom",
-				Date:  time.Now(),
-				Formula: Formula{
+				Formula: formula.Value{
 					Type:  "quadratic",
-					Value: 10,
+					Value: math.NewInt(10),
 				},
 				Excluded: []string{"cosmos1aqn8ynvr3jmq67879qulzrwhchq5dtrvh6h4er"},
 			},
@@ -76,11 +75,9 @@ func TestParseConfig(t *testing.T) {
 			require.Equal(t, tt.want.AirdropToken, got.AirdropToken)
 			require.Equal(t, tt.want.DustWallet, got.DustWallet)
 			for i, wantSnapshot := range tt.want.Snapshots {
-				require.Equal(t, wantSnapshot.Chain, got.Snapshots[i].Chain)
 				require.Equal(t, wantSnapshot.Denom, got.Snapshots[i].Denom)
 				require.Equal(t, wantSnapshot.Formula, got.Snapshots[i].Formula)
-				require.Equal(t, wantSnapshot.Date.Unix(), got.Snapshots[i].Date.Unix())
-				require.Equal(t, wantSnapshot.Types, got.Snapshots[i].Types)
+				require.Equal(t, wantSnapshot.Type, got.Snapshots[i].Type)
 				require.EqualValues(t, wantSnapshot.Excluded, got.Snapshots[i].Excluded)
 
 			}

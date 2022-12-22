@@ -7,23 +7,23 @@ import (
 )
 
 type (
-	// Snapshot provide a snapshot with all genesis accounts
+	// Snapshot provide a snapshot with all genesis Accounts
 	Snapshot struct {
-		NumberAccounts uint64   `json:"num_accounts"`
-		Accounts       Accounts `json:"accounts"`
+		NumberAccounts uint64   `json:"num_accounts" yaml:"num_accounts"`
+		Accounts       Accounts `json:"accounts" yaml:"accounts"`
 	}
 
 	// Account provide fields of snapshot per account
 	// It is the simplified struct we are presenting
 	// in this 'balances from state export' snapshot for people.
 	Account struct {
-		Address        string    `json:"address"`
-		Staked         math.Int  `json:"staked"`
-		UnbondingStake math.Int  `json:"unbonding_stake"`
-		LiquidBalances sdk.Coins `json:"liquid_balance"`
+		Address        string    `json:"address" yaml:"address"`
+		Staked         math.Int  `json:"staked" yaml:"staked"`
+		UnbondingStake math.Int  `json:"unbonding_stake" yaml:"unbonding_stake"`
+		LiquidBalances sdk.Coins `json:"liquid_balance" yaml:"liquid_balance"`
 	}
 
-	// Accounts represents a map of snapshot accounts
+	// Accounts represents a map of snapshot Accounts
 	Accounts map[string]Account
 )
 
@@ -35,6 +35,11 @@ func newAccount(address string) Account {
 		UnbondingStake: math.ZeroInt(),
 		LiquidBalances: sdk.NewCoins(),
 	}
+}
+
+// TotalStake returns a sum of stake and unbounding stake
+func (a Account) TotalStake() math.Int {
+	return a.Staked.Add(a.UnbondingStake)
 }
 
 // getAccount get an existing account or generate a new one

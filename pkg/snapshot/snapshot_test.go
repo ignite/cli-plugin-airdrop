@@ -342,3 +342,41 @@ func TestAccounts_FilterDenom(t *testing.T) {
 		})
 	}
 }
+
+func TestAccount_TotalStake(t *testing.T) {
+	tests := []struct {
+		name           string
+		staked         math.Int
+		unbondingStake math.Int
+		want           math.Int
+	}{
+		{
+			name:           "staked and unbounding stake",
+			unbondingStake: math.NewInt(100),
+			staked:         math.NewInt(999),
+			want:           math.NewInt(1099),
+		},
+		{
+			name:           "zero staked",
+			unbondingStake: math.NewInt(0),
+			staked:         math.NewInt(999),
+			want:           math.NewInt(999),
+		},
+		{
+			name:           "zero unbounding stake",
+			unbondingStake: math.NewInt(100),
+			staked:         math.NewInt(0),
+			want:           math.NewInt(100),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := Account{
+				Staked:         tt.staked,
+				UnbondingStake: tt.unbondingStake,
+			}
+			got := a.TotalStake()
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

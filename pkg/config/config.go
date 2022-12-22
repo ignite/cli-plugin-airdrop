@@ -2,9 +2,10 @@ package config
 
 import (
 	"os"
-	"time"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/ignite/cli-plugin-airdrop/pkg/formula"
 )
 
 type (
@@ -17,18 +18,10 @@ type (
 
 	// Snapshot defines a struct with the fields that are common to all config snapshot.
 	Snapshot struct {
-		Types    string    `yaml:"types"`
-		Chain    string    `yaml:"chain"`
-		Denom    string    `yaml:"denom"`
-		Date     time.Time `yaml:"date"`
-		Formula  Formula   `yaml:"formula"`
-		Excluded []string  `yaml:"excluded"`
-	}
-
-	// Formula defines a struct with the fields that are common to all config snapshot formula.
-	Formula struct {
-		Type  string `yaml:"type"`
-		Value uint64 `yaml:"value"`
+		Type     string        `yaml:"type"`
+		Denom    string        `yaml:"denom"`
+		Formula  formula.Value `yaml:"formula"`
+		Excluded []string      `yaml:"excluded"`
 	}
 )
 

@@ -5,10 +5,8 @@ dust_wallet: 1
 
 # list of snapshots
 snapshots:
-  - types: staking # Type of snapshot [ staking|liquidity ]
-    chain: cosmos-hub # Snapshot chain
+  - type: staking # Type of snapshot [ staking|liquidity ]
     denom: uatom # Denom, related coin denom to stake for example, or pair for liquidity pool
-    date: 2022-01-01T00:00:00Z
     formula: # TBD
       type: quadratic
       value: 2
