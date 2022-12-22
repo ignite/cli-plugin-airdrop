@@ -380,3 +380,48 @@ func TestAccount_TotalStake(t *testing.T) {
 		})
 	}
 }
+
+func TestAccount_BalanceAmount(t *testing.T) {
+	tests := []struct {
+		name           string
+		liquidBalances sdk.Coins
+		want           math.Int
+	}{
+		{
+			name: "test 3 denom",
+			liquidBalances: sdk.NewCoins(
+				sdk.NewCoin("uatom", math.NewInt(1000)),
+				sdk.NewCoin("token", math.NewInt(2000)),
+				sdk.NewCoin("stake", math.NewInt(3000)),
+			),
+			want: math.NewInt(6000),
+		},
+		{
+			name: "test 2 denom",
+			liquidBalances: sdk.NewCoins(
+				sdk.NewCoin("uatom", math.NewInt(1000)),
+				sdk.NewCoin("stake", math.NewInt(3000)),
+			),
+			want: math.NewInt(4000),
+		},
+		{
+			name: "test 1 denom",
+			liquidBalances: sdk.NewCoins(
+				sdk.NewCoin("uatom", math.NewInt(1000)),
+			),
+			want: math.NewInt(1000),
+		},
+		{
+			name:           "test no denom",
+			liquidBalances: sdk.NewCoins(),
+			want:           math.NewInt(0),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := Account{LiquidBalances: tt.liquidBalances}
+			got := a.BalanceAmount()
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

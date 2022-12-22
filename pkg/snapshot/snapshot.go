@@ -39,7 +39,22 @@ func newAccount(address string) Account {
 
 // TotalStake returns a sum of stake and unbounding stake
 func (a Account) TotalStake() math.Int {
+	if a.Staked.IsNil() {
+		return a.UnbondingStake
+	}
+	if a.UnbondingStake.IsNil() {
+		return a.Staked
+	}
 	return a.Staked.Add(a.UnbondingStake)
+}
+
+// BalanceAmount returns a sum of all denom balances
+func (a Account) BalanceAmount() math.Int {
+	amount := math.ZeroInt()
+	for _, coin := range a.LiquidBalances {
+		amount = amount.Add(coin.Amount)
+	}
+	return amount
 }
 
 // getAccount get an existing account or generate a new one
