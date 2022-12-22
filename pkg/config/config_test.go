@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"cosmossdk.io/math"
-
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
@@ -24,7 +22,7 @@ func TestParseConfig(t *testing.T) {
 				Denom: "uatom",
 				Formula: formula.Value{
 					Type:  "quadratic",
-					Value: math.NewInt(2),
+					Value: 2,
 				},
 				Excluded: []string{"cosmos1aqn8ynvr3jmq67879qulzrwhchq5dtrvh6h4er"},
 			},
@@ -33,7 +31,7 @@ func TestParseConfig(t *testing.T) {
 				Denom: "uatom",
 				Formula: formula.Value{
 					Type:  "quadratic",
-					Value: math.NewInt(10),
+					Value: 10,
 				},
 				Excluded: []string{"cosmos1aqn8ynvr3jmq67879qulzrwhchq5dtrvh6h4er"},
 			},

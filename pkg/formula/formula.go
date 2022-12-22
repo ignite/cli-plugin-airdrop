@@ -14,9 +14,9 @@ const (
 type (
 	// Value defines a struct for the formula type
 	Value struct {
-		Type   Type     `json:"type" yaml:"type"`
-		Value  math.Int `json:"value" yaml:"value"`
-		Ignore math.Int `json:"ignore" yaml:"ignore"`
+		Type   Type  `json:"type" yaml:"type"`
+		Value  int64 `json:"value" yaml:"value"`
+		Ignore int64 `json:"ignore" yaml:"ignore"`
 	}
 	// Type defines a formula type
 	Type string
@@ -33,9 +33,9 @@ func (v Value) Calculate(amount, staked math.Int) math.Int {
 			stakedPercent = staked.Quo(amount)
 		}
 		base := math.NewIntFromBigInt(big.NewInt(0).Sqrt(amount.BigInt()))
-		bonus := base.Mul(v.Value).Mul(stakedPercent)
+		bonus := base.Mul(math.NewInt(v.Value)).Mul(stakedPercent)
 		airdrop := base.Add(bonus)
-		if airdrop.LTE(v.Ignore) {
+		if airdrop.LTE(math.NewInt(v.Ignore)) {
 			return math.ZeroInt()
 		}
 		return airdrop

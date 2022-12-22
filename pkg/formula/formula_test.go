@@ -22,8 +22,8 @@ func TestValue_Calculate(t *testing.T) {
 			name: "zero values",
 			value: Value{
 				Type:   Quadratic,
-				Value:  math.NewInt(0),
-				Ignore: math.NewInt(0),
+				Value:  0,
+				Ignore: 0,
 			},
 			args: args{
 				amount: math.NewInt(0),
@@ -35,8 +35,8 @@ func TestValue_Calculate(t *testing.T) {
 			name: "valid formula",
 			value: Value{
 				Type:   Quadratic,
-				Value:  math.NewInt(110),
-				Ignore: math.NewInt(20),
+				Value:  110,
+				Ignore: 20,
 			},
 			args: args{
 				amount: math.NewInt(330),
@@ -48,8 +48,8 @@ func TestValue_Calculate(t *testing.T) {
 			name: "invalid formula",
 			value: Value{
 				Type:   "invalid",
-				Value:  math.NewInt(110),
-				Ignore: math.NewInt(20),
+				Value:  110,
+				Ignore: 20,
 			},
 			args: args{
 				amount: math.NewInt(330),
