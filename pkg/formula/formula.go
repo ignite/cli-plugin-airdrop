@@ -27,7 +27,11 @@ type (
 func (v Value) Calculate(amount, staked math.Int) math.Int {
 	switch v.Type {
 	case Quadratic:
-		stakedPercent := staked.Quo(amount)
+		// FIXME fix the calculation
+		stakedPercent := math.NewInt(1)
+		if amount.IsPositive() {
+			stakedPercent = staked.Quo(amount)
+		}
 		base := math.NewIntFromBigInt(big.NewInt(0).Sqrt(amount.BigInt()))
 		bonus := base.Mul(v.Value).Mul(stakedPercent)
 		airdrop := base.Add(bonus)

@@ -18,7 +18,45 @@ func TestValue_Calculate(t *testing.T) {
 		args  args
 		want  math.Int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "zero values",
+			value: Value{
+				Type:   Quadratic,
+				Value:  math.NewInt(0),
+				Ignore: math.NewInt(0),
+			},
+			args: args{
+				amount: math.NewInt(0),
+				staked: math.NewInt(0),
+			},
+			want: math.NewInt(0),
+		},
+		{
+			name: "valid formula",
+			value: Value{
+				Type:   Quadratic,
+				Value:  math.NewInt(110),
+				Ignore: math.NewInt(20),
+			},
+			args: args{
+				amount: math.NewInt(330),
+				staked: math.NewInt(30),
+			},
+			want: math.NewInt(0),
+		},
+		{
+			name: "invalid formula",
+			value: Value{
+				Type:   "invalid",
+				Value:  math.NewInt(110),
+				Ignore: math.NewInt(20),
+			},
+			args: args{
+				amount: math.NewInt(330),
+				staked: math.NewInt(30),
+			},
+			want: math.NewInt(0),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

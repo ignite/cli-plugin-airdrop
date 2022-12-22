@@ -11,17 +11,17 @@ import (
 type (
 	// Config defines a struct with the fields that are common to all config.
 	Config struct {
-		AirdropToken string     `yaml:"airdrop_token"`
-		DustWallet   uint64     `yaml:"dust_wallet"`
-		Snapshots    []Snapshot `yaml:"snapshots,omitempty"`
+		AirdropToken string     `json:"airdrop_token" yaml:"airdrop_token"`
+		DustWallet   uint64     `json:"dust_wallet" yaml:"dust_wallet"`
+		Snapshots    []Snapshot `json:"snapshots" yaml:"snapshots"`
 	}
 
 	// Snapshot defines a struct with the fields that are common to all config snapshot.
 	Snapshot struct {
-		Type     string        `yaml:"type"`
-		Denom    string        `yaml:"denom"`
-		Formula  formula.Value `yaml:"formula"`
-		Excluded []string      `yaml:"excluded"`
+		Type     string        `json:"type" yaml:"type"`
+		Denom    string        `json:"denom" yaml:"denom"`
+		Formula  formula.Value `json:"formula" yaml:"formula"`
+		Excluded []string      `json:"excluded" yaml:"excluded"`
 	}
 )
 
