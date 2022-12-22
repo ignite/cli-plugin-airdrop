@@ -2,25 +2,14 @@ package snapshot
 
 import (
 	"cosmossdk.io/math"
+	claimtypes "github.com/ignite/modules/x/claim/types"
 
 	"github.com/ignite/cli-plugin-airdrop/pkg/formula"
 )
 
 type (
 	// Filter provide a filter with all airdrop balances
-	Filter struct {
-		NumberAmounts uint64  `json:"num_accounts" yaml:"num_accounts"`
-		Amounts       Amounts `json:"accounts" yaml:"accounts"`
-	}
-
-	// Amount provide balance fields of filter Account
-	Amount struct {
-		Address     string   `json:"address" yaml:"address"`
-		ClaimAmount math.Int `json:"claim_amount" yaml:"claim_amount"`
-	}
-
-	// Amounts represents a map of filter Amounts
-	Amounts map[string]Amount
+	Filter map[string]claimtypes.ClaimRecord
 
 	// FilterType represents a Filter type
 	FilterType string
@@ -30,35 +19,34 @@ type (
 )
 
 const (
-	// FilterStaking filter type staking
-	FilterStaking = "staking"
-	// FilterLiquidity filter type liquidity
-	FilterLiquidity = "liquidity"
+	// Staking filter type staking
+	Staking = "staking"
+	// Liquidity filter type liquidity
+	Liquidity = "liquidity"
 )
 
 // Sum sum all filters into one
-func (f Filters) Sum() (result Filter) {
-	result.Amounts = make(Amounts)
+func (f Filters) Sum() Filter {
+	result := make(Filter)
 	for _, filter := range f {
-		for _, amount := range filter.Amounts {
-			resultAmount := result.Amounts.getAmount(amount.Address)
-			resultAmount.ClaimAmount = resultAmount.ClaimAmount.Add(amount.ClaimAmount)
-			result.Amounts[amount.Address] = resultAmount
+		for _, amount := range filter {
+			resultAmount := result.getAmount(amount.Address)
+			resultAmount.Claimable = resultAmount.Claimable.Add(amount.Claimable)
+			result[amount.Address] = resultAmount
 		}
 	}
-	result.NumberAmounts = uint64(len(result.Amounts))
-	return
+	return result
 }
 
 // getAccount get an existing account or generate a new one
-func (a Amounts) getAmount(address string) Amount {
-	acc, ok := a[address]
+func (f Filter) getAmount(address string) claimtypes.ClaimRecord {
+	acc, ok := f[address]
 	if ok {
 		return acc
 	}
-	return Amount{
-		Address:     address,
-		ClaimAmount: math.NewInt(0),
+	return claimtypes.ClaimRecord{
+		Address:   address,
+		Claimable: math.NewInt(0),
 	}
 }
 
@@ -75,21 +63,18 @@ func (s Snapshot) Filter(
 	}
 	s.Accounts.filterDenom(denom)
 
-	amounts := make(Amounts)
+	filter := make(Filter)
 	for address, account := range s.Accounts {
 		// TODO FIXME for the liquidity model
 		amount := account.balanceAmount()
-		if filterType == FilterStaking {
+		if filterType == Staking {
 			amount = account.balanceAmount()
 		}
 		claimAmount := formula.Calculate(amount, account.Staked)
-		amounts[address] = Amount{
-			Address:     address,
-			ClaimAmount: claimAmount,
+		filter[address] = claimtypes.ClaimRecord{
+			Address:   address,
+			Claimable: claimAmount,
 		}
 	}
-	return Filter{
-		NumberAmounts: uint64(len(amounts)),
-		Amounts:       amounts,
-	}
+	return filter
 }
