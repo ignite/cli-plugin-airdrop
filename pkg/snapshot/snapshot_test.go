@@ -30,6 +30,7 @@ func TestParseSnapshot(t *testing.T) {
 					sdk.NewCoin("stake", math.NewInt(200000000)),
 					sdk.NewCoin("token", math.NewInt(20000)),
 				),
+				LiquidityPool: sdk.NewCoins(),
 			},
 			accAddr2: {
 				Address:        accAddr2,
@@ -39,12 +40,17 @@ func TestParseSnapshot(t *testing.T) {
 					sdk.NewCoin("stake", math.NewInt(100000000)),
 					sdk.NewCoin("token", math.NewInt(10000)),
 				),
+				LiquidityPool: sdk.NewCoins(
+					sdk.NewCoin("stake", math.NewInt(33)),
+					sdk.NewCoin("token", math.NewInt(11)),
+				),
 			},
 			accAddr3: {
 				Address:        accAddr3,
 				Staked:         math.NewInt(1),
 				UnbondingStake: math.NewInt(6985000),
 				Balance:        sdk.NewCoins(),
+				LiquidityPool:  sdk.NewCoins(),
 			},
 		},
 	}

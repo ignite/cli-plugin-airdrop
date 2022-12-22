@@ -199,7 +199,7 @@ func TestConfig_Validate(t *testing.T) {
 						Denom: "uatom",
 						Formula: formula.Value{
 							Type:   formula.Quadratic,
-							Value:  2,
+							Value:  0,
 							Ignore: 1,
 						},
 						Excluded: nil,
