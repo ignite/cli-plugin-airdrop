@@ -5,7 +5,7 @@ dust_wallet: 1
 
 # list of snapshots
 snapshots:
-  - type: staking # Type of snapshot [ staking|liquidity ]
+  - types: staking # Type of snapshot [ staking|liquidity ]
     denom: uatom # Denom, related coin denom to stake for example, or pair for liquidity pool
     formula: # TBD
       type: quadratic

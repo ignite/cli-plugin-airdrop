@@ -266,7 +266,7 @@ func TestGenerate(t *testing.T) {
 						Address:        acc1,
 						Staked:         math.NewInt(1),
 						UnbondingStake: math.NewInt(53425),
-						LiquidBalances: sdk.NewCoins(
+						Balance: sdk.NewCoins(
 							sdk.NewCoin("stake", math.NewInt(200000000)),
 							sdk.NewCoin("token", math.NewInt(20000)),
 						),
@@ -275,7 +275,7 @@ func TestGenerate(t *testing.T) {
 						Address:        acc2,
 						Staked:         math.NewInt(41581980),
 						UnbondingStake: math.NewInt(50000),
-						LiquidBalances: sdk.NewCoins(
+						Balance: sdk.NewCoins(
 							sdk.NewCoin("stake", math.NewInt(100000000)),
 							sdk.NewCoin("token", math.NewInt(10000)),
 						),
@@ -284,7 +284,7 @@ func TestGenerate(t *testing.T) {
 						Address:        acc3,
 						Staked:         math.NewInt(1),
 						UnbondingStake: math.NewInt(6985000),
-						LiquidBalances: sdk.NewCoins(),
+						Balance:        sdk.NewCoins(),
 					},
 				},
 			},

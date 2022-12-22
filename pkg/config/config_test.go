@@ -1,11 +1,12 @@
 package config
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
@@ -79,6 +80,144 @@ func TestParseConfig(t *testing.T) {
 				require.EqualValues(t, wantSnapshot.Excluded, got.Snapshots[i].Excluded)
 
 			}
+		})
+	}
+}
+
+func TestConfig_Validate(t *testing.T) {
+	tests := []struct {
+		name string
+		c    Config
+		err  error
+	}{
+		{
+			name: "nil snapshots",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots:    nil,
+			},
+			err: ErrInvalidConfig,
+		},
+		{
+			name: "empty snapshots",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots:    []Snapshot{},
+			},
+			err: ErrInvalidConfig,
+		},
+		{
+			name: "empty airdrop token",
+			c: Config{
+				AirdropToken: "",
+				DustWallet:   0,
+				Snapshots: []Snapshot{
+					{
+						Type:  "staking",
+						Denom: "uatom",
+						Formula: formula.Value{
+							Type:   formula.Quadratic,
+							Value:  2,
+							Ignore: 1,
+						},
+						Excluded: nil,
+					},
+				},
+			},
+			err: ErrInvalidConfig,
+		},
+		{
+			name: "empty snapshot type",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots: []Snapshot{
+					{
+						Type:  "",
+						Denom: "uatom",
+						Formula: formula.Value{
+							Type:   formula.Quadratic,
+							Value:  2,
+							Ignore: 1,
+						},
+						Excluded: nil,
+					},
+				},
+			},
+			err: ErrInvalidSnapshotConfig,
+		},
+		{
+			name: "empty snapshot denom",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots: []Snapshot{
+					{
+						Type:  "staking",
+						Denom: "",
+						Formula: formula.Value{
+							Type:   formula.Quadratic,
+							Value:  2,
+							Ignore: 1,
+						},
+						Excluded: nil,
+					},
+				},
+			},
+			err: ErrInvalidSnapshotConfig,
+		},
+		{
+			name: "empty snapshot formula type",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots: []Snapshot{
+					{
+						Type:  "staking",
+						Denom: "uatom",
+						Formula: formula.Value{
+							Type:   "",
+							Value:  2,
+							Ignore: 1,
+						},
+						Excluded: nil,
+					},
+				},
+			},
+			err: ErrInvalidSnapshotConfig,
+		},
+		{
+			name: "zero formula value",
+			c: Config{
+				AirdropToken: "uatom",
+				DustWallet:   0,
+				Snapshots: []Snapshot{
+					{
+						Type:  "staking",
+						Denom: "uatom",
+						Formula: formula.Value{
+							Type:   formula.Quadratic,
+							Value:  2,
+							Ignore: 1,
+						},
+						Excluded: nil,
+					},
+				},
+			},
+			err: ErrInvalidSnapshotConfig,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.c.Validate()
+			if tt.err != nil {
+				require.Error(t, err)
+				require.True(t, strings.Contains(err.Error(), tt.err.Error()))
+				return
+			}
+			require.NoError(t, err)
 		})
 	}
 }

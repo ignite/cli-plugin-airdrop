@@ -3,9 +3,15 @@ package config
 import (
 	"os"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli-plugin-airdrop/pkg/formula"
+)
+
+var (
+	ErrInvalidConfig         = errors.New("invalid config file")
+	ErrInvalidSnapshotConfig = errors.New("invalid snapshot config")
 )
 
 type (
@@ -36,5 +42,29 @@ func ParseConfig(filename string) (c Config, err error) {
 	if err := yaml.NewDecoder(f).Decode(&c); err != nil {
 		return c, err
 	}
-	return c, nil
+	return c, c.Validate()
+}
+
+func (c Config) Validate() error {
+	if c.AirdropToken == "" {
+		return errors.Wrap(ErrInvalidConfig, "airdrop token type not defined")
+	}
+	if len(c.Snapshots) == 0 {
+		return errors.Wrap(ErrInvalidConfig, "snapshots not defined")
+	}
+	for _, snapshot := range c.Snapshots {
+		if snapshot.Type == "" {
+			return errors.Wrap(ErrInvalidSnapshotConfig, "snapshot type not defined")
+		}
+		if snapshot.Denom == "" {
+			return errors.Wrap(ErrInvalidSnapshotConfig, "snapshot denom not defined")
+		}
+		if snapshot.Formula.Type == "" {
+			return errors.Wrap(ErrInvalidSnapshotConfig, "snapshot formula type not defined")
+		}
+		if snapshot.Formula.Value == 0 {
+			return errors.Wrap(ErrInvalidSnapshotConfig, "invalid snapshot formula value")
+		}
+	}
+	return nil
 }

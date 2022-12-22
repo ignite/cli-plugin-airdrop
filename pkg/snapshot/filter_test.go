@@ -78,11 +78,26 @@ func TestSnapshot_Filter(t *testing.T) {
 		want     Filter
 	}{
 		// TODO: Add test cases.
-		// needs to fix the calculation first
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.snapshot.Filter(tt.args.filterType, tt.args.denom, tt.args.formula, tt.args.excludedAddresses)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestFilters_Sum(t *testing.T) {
+	tests := []struct {
+		name    string
+		filters Filters
+		want    Filter
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.filters.Sum()
 			require.Equal(t, tt.want, got)
 		})
 	}

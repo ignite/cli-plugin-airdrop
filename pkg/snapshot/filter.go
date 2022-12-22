@@ -71,15 +71,15 @@ func (s Snapshot) Filter(
 	excludedAddresses []string,
 ) Filter {
 	if len(excludedAddresses) > 0 {
-		s.Accounts.ExcludeAddresses(excludedAddresses...)
+		s.Accounts.excludeAddresses(excludedAddresses...)
 	}
-	if len(denom) > 0 {
-		s.Accounts.FilterDenom(denom)
+	if denom != "" {
+		s.Accounts.filterDenom(denom)
 	}
 
 	amounts := make(Amounts)
 	for address, account := range s.Accounts {
-		claimAmount := formula.Calculate(account.BalanceAmount(), account.Staked)
+		claimAmount := formula.Calculate(account.balanceAmount(), account.Staked)
 		amounts[address] = Amount{
 			Address:     address,
 			ClaimAmount: claimAmount,

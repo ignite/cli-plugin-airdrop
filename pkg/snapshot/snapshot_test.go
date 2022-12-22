@@ -26,7 +26,7 @@ func TestParseSnapshot(t *testing.T) {
 				Address:        accAddr1,
 				Staked:         math.NewInt(1),
 				UnbondingStake: math.NewInt(53425),
-				LiquidBalances: sdk.NewCoins(
+				Balance: sdk.NewCoins(
 					sdk.NewCoin("stake", math.NewInt(200000000)),
 					sdk.NewCoin("token", math.NewInt(20000)),
 				),
@@ -35,7 +35,7 @@ func TestParseSnapshot(t *testing.T) {
 				Address:        accAddr2,
 				Staked:         math.NewInt(41581980),
 				UnbondingStake: math.NewInt(50000),
-				LiquidBalances: sdk.NewCoins(
+				Balance: sdk.NewCoins(
 					sdk.NewCoin("stake", math.NewInt(100000000)),
 					sdk.NewCoin("token", math.NewInt(10000)),
 				),
@@ -44,7 +44,7 @@ func TestParseSnapshot(t *testing.T) {
 				Address:        accAddr3,
 				Staked:         math.NewInt(1),
 				UnbondingStake: math.NewInt(6985000),
-				LiquidBalances: sdk.NewCoins(),
+				Balance:        sdk.NewCoins(),
 			},
 		},
 	}
@@ -94,7 +94,7 @@ func TestNewAccount(t *testing.T) {
 	require.Equal(t, address, got.Address)
 	require.Equal(t, math.ZeroInt(), got.Staked)
 	require.Equal(t, math.ZeroInt(), got.UnbondingStake)
-	require.Equal(t, sdk.NewCoins(), got.LiquidBalances)
+	require.Equal(t, sdk.NewCoins(), got.Balance)
 }
 
 func TestAccounts_getAccount(t *testing.T) {
@@ -109,13 +109,13 @@ func TestAccounts_getAccount(t *testing.T) {
 			Address:        accAddr1,
 			Staked:         math.NewInt(10),
 			UnbondingStake: math.NewInt(10),
-			LiquidBalances: sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(10))),
+			Balance:        sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(10))),
 		},
 		accAddr2: {
 			Address:        accAddr2,
 			Staked:         math.NewInt(12),
 			UnbondingStake: math.NewInt(12),
-			LiquidBalances: sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(12))),
+			Balance:        sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(12))),
 		},
 	}
 	tests := []struct {
@@ -144,7 +144,7 @@ func TestAccounts_getAccount(t *testing.T) {
 				Address:        accAddr3,
 				Staked:         math.ZeroInt(),
 				UnbondingStake: math.ZeroInt(),
-				LiquidBalances: sdk.NewCoins(),
+				Balance:        sdk.NewCoins(),
 			},
 		},
 	}
@@ -213,7 +213,7 @@ func TestAccounts_ExcludeAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.accs.ExcludeAddress(tt.address)
+			tt.accs.excludeAddress(tt.address)
 			require.EqualValues(t, tt.want, tt.accs)
 		})
 	}
@@ -300,7 +300,7 @@ func TestAccounts_ExcludeAddresses(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.accs.ExcludeAddresses(tt.addresses...)
+			tt.accs.excludeAddresses(tt.addresses...)
 			require.EqualValues(t, tt.want, tt.accs)
 		})
 	}
@@ -324,7 +324,7 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			accs: Accounts{
 				accAddr1: {
 					Address: accAddr1,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("uatom", math.NewInt(1000)),
 						sdk.NewCoin("token", math.NewInt(2000)),
 						sdk.NewCoin("stake", math.NewInt(3000)),
@@ -332,13 +332,13 @@ func TestAccounts_FilterDenom(t *testing.T) {
 				},
 				accAddr2: {
 					Address: accAddr2,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("stake", math.NewInt(3000)),
 					),
 				},
 				accAddr3: {
 					Address: accAddr3,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("uatom", math.NewInt(1000)),
 						sdk.NewCoin("stake", math.NewInt(3000)),
 					),
@@ -348,17 +348,17 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			want: Accounts{
 				accAddr1: {
 					Address: accAddr1,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("uatom", math.NewInt(1000)),
 					),
 				},
 				accAddr2: {
-					Address:        accAddr2,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr2,
+					Balance: sdk.NewCoins(),
 				},
 				accAddr3: {
 					Address: accAddr3,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("uatom", math.NewInt(1000)),
 					),
 				},
@@ -369,7 +369,7 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			accs: Accounts{
 				accAddr1: {
 					Address: accAddr1,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("uatom", math.NewInt(1000)),
 						sdk.NewCoin("token", math.NewInt(2000)),
 						sdk.NewCoin("stake", math.NewInt(3000)),
@@ -377,7 +377,7 @@ func TestAccounts_FilterDenom(t *testing.T) {
 				},
 				accAddr2: {
 					Address: accAddr2,
-					LiquidBalances: sdk.NewCoins(
+					Balance: sdk.NewCoins(
 						sdk.NewCoin("stake", math.NewInt(3000)),
 					),
 				},
@@ -385,12 +385,12 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			denom: "void",
 			want: Accounts{
 				accAddr1: {
-					Address:        accAddr1,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr1,
+					Balance: sdk.NewCoins(),
 				},
 				accAddr2: {
-					Address:        accAddr2,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr2,
+					Balance: sdk.NewCoins(),
 				},
 			},
 		},
@@ -398,8 +398,8 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			name: "filter empty balances",
 			accs: Accounts{
 				accAddr1: {
-					Address:        accAddr1,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr1,
+					Balance: sdk.NewCoins(),
 				},
 				accAddr2: {
 					Address: accAddr2,
@@ -408,19 +408,19 @@ func TestAccounts_FilterDenom(t *testing.T) {
 			denom: "uatom",
 			want: Accounts{
 				accAddr1: {
-					Address:        accAddr1,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr1,
+					Balance: sdk.NewCoins(),
 				},
 				accAddr2: {
-					Address:        accAddr2,
-					LiquidBalances: sdk.NewCoins(),
+					Address: accAddr2,
+					Balance: sdk.NewCoins(),
 				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.accs.FilterDenom(tt.denom)
+			tt.accs.filterDenom(tt.denom)
 			require.EqualValues(t, tt.want, tt.accs)
 		})
 	}
@@ -458,7 +458,7 @@ func TestAccount_TotalStake(t *testing.T) {
 				Staked:         tt.staked,
 				UnbondingStake: tt.unbondingStake,
 			}
-			got := a.TotalStake()
+			got := a.totalStake()
 			require.Equal(t, tt.want, got)
 		})
 	}
@@ -467,43 +467,53 @@ func TestAccount_TotalStake(t *testing.T) {
 func TestAccount_BalanceAmount(t *testing.T) {
 	tests := []struct {
 		name           string
-		liquidBalances sdk.Coins
+		balance        sdk.Coins
+		staked         math.Int
+		unboudingStake math.Int
 		want           math.Int
 	}{
 		{
-			name: "test 3 denom",
-			liquidBalances: sdk.NewCoins(
+			name: "test 3 denom and stake",
+			balance: sdk.NewCoins(
 				sdk.NewCoin("uatom", math.NewInt(1000)),
 				sdk.NewCoin("token", math.NewInt(2000)),
 				sdk.NewCoin("stake", math.NewInt(3000)),
 			),
-			want: math.NewInt(6000),
+			staked:         math.NewInt(100),
+			unboudingStake: math.NewInt(0),
+			want:           math.NewInt(6100),
 		},
 		{
 			name: "test 2 denom",
-			liquidBalances: sdk.NewCoins(
+			balance: sdk.NewCoins(
 				sdk.NewCoin("uatom", math.NewInt(1000)),
 				sdk.NewCoin("stake", math.NewInt(3000)),
 			),
-			want: math.NewInt(4000),
+			staked:         math.NewInt(33),
+			unboudingStake: math.NewInt(22),
+			want:           math.NewInt(4055),
 		},
 		{
 			name: "test 1 denom",
-			liquidBalances: sdk.NewCoins(
+			balance: sdk.NewCoins(
 				sdk.NewCoin("uatom", math.NewInt(1000)),
 			),
-			want: math.NewInt(1000),
+			staked:         math.NewInt(0),
+			unboudingStake: math.NewInt(12),
+			want:           math.NewInt(1012),
 		},
 		{
 			name:           "test no denom",
-			liquidBalances: sdk.NewCoins(),
-			want:           math.NewInt(0),
+			balance:        sdk.NewCoins(),
+			staked:         math.NewInt(1),
+			unboudingStake: math.Int{},
+			want:           math.NewInt(1),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := Account{LiquidBalances: tt.liquidBalances}
-			got := a.BalanceAmount()
+			a := Account{Balance: tt.balance, Staked: tt.staked, UnbondingStake: tt.unboudingStake}
+			got := a.balanceAmount()
 			require.Equal(t, tt.want, got)
 		})
 	}

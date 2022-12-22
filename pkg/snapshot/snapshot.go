@@ -13,6 +13,7 @@ type (
 	// Snapshot provide a snapshot with all genesis Accounts
 	Snapshot struct {
 		NumberAccounts uint64   `json:"num_accounts" yaml:"num_accounts"`
+		BondDenom      string   `json:"bond_denom" yaml:"bond_denom"`
 		Accounts       Accounts `json:"accounts" yaml:"accounts"`
 	}
 
@@ -23,7 +24,7 @@ type (
 		Address        string    `json:"address" yaml:"address"`
 		Staked         math.Int  `json:"staked" yaml:"staked"`
 		UnbondingStake math.Int  `json:"unbonding_stake" yaml:"unbonding_stake"`
-		LiquidBalances sdk.Coins `json:"liquid_balance" yaml:"liquid_balance"`
+		Balance        sdk.Coins `json:"unstake" yaml:"unstake"`
 	}
 
 	// Accounts represents a map of snapshot Accounts
@@ -36,7 +37,7 @@ func newAccount(address string) Account {
 		Address:        address,
 		Staked:         math.ZeroInt(),
 		UnbondingStake: math.ZeroInt(),
-		LiquidBalances: sdk.NewCoins(),
+		Balance:        sdk.NewCoins(),
 	}
 }
 
@@ -54,8 +55,8 @@ func ParseSnapshot(filename string) (c Snapshot, err error) {
 	return c, nil
 }
 
-// TotalStake returns a sum of stake and unbounding stake
-func (a Account) TotalStake() math.Int {
+// totalStake returns a sum of stake and unbounding stake
+func (a Account) totalStake() math.Int {
 	if a.Staked.IsNil() {
 		return a.UnbondingStake
 	}
@@ -65,11 +66,17 @@ func (a Account) TotalStake() math.Int {
 	return a.Staked.Add(a.UnbondingStake)
 }
 
-// BalanceAmount returns a sum of all denom balances
-func (a Account) BalanceAmount() math.Int {
-	amount := math.ZeroInt()
-	for _, coin := range a.LiquidBalances {
-		amount = amount.Add(coin.Amount)
+// balanceAmount returns a sum of all denom balances
+func (a Account) balanceAmount() math.Int {
+	amount := math.NewInt(0)
+	if !a.Staked.IsNil() {
+		amount = amount.Add(a.Staked)
+	}
+	if !a.UnbondingStake.IsNil() {
+		amount = amount.Add(a.UnbondingStake)
+	}
+	for _, balance := range a.Balance {
+		amount = amount.Add(balance.Amount)
 	}
 	return amount
 }
@@ -83,8 +90,8 @@ func (a Accounts) getAccount(address string) Account {
 	return newAccount(address)
 }
 
-// ExcludeAddress exclude an address from the accounts
-func (a Accounts) ExcludeAddress(address string) {
+// excludeAddress exclude an address from the accounts
+func (a Accounts) excludeAddress(address string) {
 	for accAddress := range a {
 		if accAddress == address {
 			delete(a, accAddress)
@@ -92,21 +99,21 @@ func (a Accounts) ExcludeAddress(address string) {
 	}
 }
 
-// ExcludeAddresses exclude an address list from the accounts
-func (a Accounts) ExcludeAddresses(addresses ...string) {
+// excludeAddresses exclude an address list from the accounts
+func (a Accounts) excludeAddresses(addresses ...string) {
 	for _, address := range addresses {
-		a.ExcludeAddress(address)
+		a.excludeAddress(address)
 	}
 }
 
-// FilterDenom filter balance by denom
-func (a Accounts) FilterDenom(denom string) {
+// filterDenom filter balance by denom
+func (a Accounts) filterDenom(denom string) {
 	for address, account := range a {
-		found, liquidBalance := account.LiquidBalances.Find(denom)
+		found, liquidBalance := account.Balance.Find(denom)
 		if found {
-			account.LiquidBalances = sdk.NewCoins(liquidBalance)
+			account.Balance = sdk.NewCoins(liquidBalance)
 		} else {
-			account.LiquidBalances = sdk.NewCoins()
+			account.Balance = sdk.NewCoins()
 		}
 		a[address] = account
 	}

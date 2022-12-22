@@ -19,6 +19,45 @@ func TestValue_Calculate(t *testing.T) {
 		want  math.Int
 	}{
 		{
+			name: "valid formula 1",
+			value: Value{
+				Type:   Quadratic,
+				Value:  110,
+				Ignore: 1,
+			},
+			args: args{
+				amount: math.NewInt(330),
+				staked: math.NewInt(30),
+			},
+			want: math.NewInt(198),
+		},
+		{
+			name: "valid formula 2",
+			value: Value{
+				Type:   Quadratic,
+				Value:  2,
+				Ignore: 1,
+			},
+			args: args{
+				amount: math.NewInt(330),
+				staked: math.NewInt(200),
+			},
+			want: math.NewInt(54),
+		},
+		{
+			name: "valid formula without stake",
+			value: Value{
+				Type:   Quadratic,
+				Value:  19,
+				Ignore: 1,
+			},
+			args: args{
+				amount: math.NewInt(223),
+				staked: math.NewInt(0),
+			},
+			want: math.NewInt(14),
+		},
+		{
 			name: "zero values",
 			value: Value{
 				Type:   Quadratic,
@@ -32,11 +71,11 @@ func TestValue_Calculate(t *testing.T) {
 			want: math.NewInt(0),
 		},
 		{
-			name: "valid formula",
+			name: "invalid formula",
 			value: Value{
-				Type:   Quadratic,
+				Type:   "invalid",
 				Value:  110,
-				Ignore: 20,
+				Ignore: 2,
 			},
 			args: args{
 				amount: math.NewInt(330),
@@ -45,14 +84,14 @@ func TestValue_Calculate(t *testing.T) {
 			want: math.NewInt(0),
 		},
 		{
-			name: "invalid formula",
+			name: "zero amount",
 			value: Value{
 				Type:   "invalid",
 				Value:  110,
-				Ignore: 20,
+				Ignore: 2,
 			},
 			args: args{
-				amount: math.NewInt(330),
+				amount: math.NewInt(0),
 				staked: math.NewInt(30),
 			},
 			want: math.NewInt(0),

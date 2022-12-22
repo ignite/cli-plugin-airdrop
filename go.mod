@@ -5,6 +5,7 @@ go 1.18
 require (
 	cosmossdk.io/math v1.0.0-beta.4
 	github.com/cosmos/cosmos-sdk v0.46.7
+	github.com/gravity-devs/liquidity/v2 v2.0.1
 	github.com/hashicorp/go-plugin v1.4.8
 	github.com/ignite/cli v0.25.3-0.20221219213219-4f9f43311b00
 	github.com/spf13/cobra v1.6.1
@@ -77,6 +78,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.0.1 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
