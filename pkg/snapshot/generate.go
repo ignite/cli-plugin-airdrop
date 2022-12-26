@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	liquiditytypes "github.com/gravity-devs/liquidity/v2/x/liquidity/types"
 
 	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
 )
@@ -73,19 +72,6 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 		acc.Staked = acc.Staked.Add(staked)
 		snapshotAccs[address] = acc
 	}
-
-	var liquidityGenesis liquiditytypes.GenesisState
-	if len(genState[liquiditytypes.ModuleName]) > 0 {
-		err := marshaller.UnmarshalJSON(genState[liquiditytypes.ModuleName], &liquidityGenesis)
-		if err != nil {
-			return Snapshot{}, err
-		}
-	}
-	pools := make(map[string]liquiditytypes.Pool)
-	for _, poolRecord := range liquidityGenesis.PoolRecords {
-		pools[poolRecord.GetPool().GetPoolCoinDenom()] = poolRecord.Pool
-	}
-
 	// TODO parse balances from the liquidity module
 
 	return Snapshot{

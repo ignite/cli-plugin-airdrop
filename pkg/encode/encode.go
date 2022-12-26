@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	liquiditytypes "github.com/gravity-devs/liquidity/v2/x/liquidity/types"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
@@ -31,7 +30,6 @@ func MakeEncodingConfig() EncodingConfig {
 	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	banktypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	stakingtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	liquiditytypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	return encodingConfig
 }
 

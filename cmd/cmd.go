@@ -150,6 +150,36 @@ func NewAirdropGenesis() *cobra.Command {
 		Short: "Generate a genesis based on processed files and airdrop config",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// airdropConfig = args[0]
+			// rawSnapshot   = args[1]
+			inputGenesis := args[2]
+
+			//c, err := config.ParseConfig(airdropConfig)
+			//if err != nil {
+			//	return err
+			//}
+
+			genState, err := genesis.GetGenStateFromPath(inputGenesis)
+			if err != nil {
+				return err
+			}
+
+			//s, err := snapshot.ParseSnapshot(rawSnapshot)
+			//if err != nil {
+			//	return err
+			//}
+
+			//if err := genState.AddFromClaimRecord(c.AirdropToken, filter.ClaimRecords()); err != nil {
+			//	return err
+			//}
+
+			// export snapshot json
+			genesisJSON, err := json.MarshalIndent(genState, "", "    ")
+			if err != nil {
+				return fmt.Errorf("failed to marshal snapshot: %w", err)
+			}
+
+			cmd.Println(string(genesisJSON))
 			return nil
 		},
 	}

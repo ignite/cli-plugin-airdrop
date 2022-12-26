@@ -42,10 +42,11 @@ func ParseConfig(filename string) (c Config, err error) {
 	if err := yaml.NewDecoder(f).Decode(&c); err != nil {
 		return c, err
 	}
-	return c, c.Validate()
+	return c, c.validate()
 }
 
-func (c Config) Validate() error {
+// validate validates the config parameters.
+func (c Config) validate() error {
 	if c.AirdropToken == "" {
 		return errors.Wrap(ErrInvalidConfig, "airdrop token type not defined")
 	}

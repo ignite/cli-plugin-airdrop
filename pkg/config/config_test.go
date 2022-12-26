@@ -211,7 +211,7 @@ func TestConfig_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.c.Validate()
+			err := tt.c.validate()
 			if tt.err != nil {
 				require.Error(t, err)
 				require.True(t, strings.Contains(err.Error(), tt.err.Error()))
