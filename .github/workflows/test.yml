@@ -36,7 +36,7 @@ jobs:
 
       - name: filter non-testable files
         run: |
-          excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER')"
+          excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER' || true)"
           excludelist+=" $(find ./ -type f -name '*.pb.go')"
           excludelist+=" $(find ./ -type f -name '*.pb.gw.go')"
           excludelist+=" $(find ./cmd -type d)"
