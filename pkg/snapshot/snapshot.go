@@ -25,7 +25,6 @@ type (
 		Staked         math.Int  `json:"staked" yaml:"staked"`
 		UnbondingStake math.Int  `json:"unbonding_stake" yaml:"unbonding_stake"`
 		Balance        sdk.Coins `json:"unstake" yaml:"unstake"`
-		LiquidityPool  sdk.Coins `json:"pool" yaml:"pool"`
 	}
 
 	// Accounts represents a map of snapshot Accounts

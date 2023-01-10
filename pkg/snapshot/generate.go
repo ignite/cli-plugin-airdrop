@@ -72,7 +72,6 @@ func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 		acc.Staked = acc.Staked.Add(staked)
 		snapshotAccs[address] = acc
 	}
-	// TODO parse balances from the liquidity module
 
 	return Snapshot{
 		NumberAccounts: uint64(len(snapshotAccs)),

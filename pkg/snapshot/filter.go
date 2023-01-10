@@ -8,14 +8,14 @@ import (
 )
 
 type (
-	// Filter provide a filter with all airdrop balances
-	Filter map[string]claimtypes.ClaimRecord
+	// Record provide a record with all airdrop balances
+	Record map[string]claimtypes.ClaimRecord
 
-	// FilterType represents a Filter type
-	FilterType string
+	// ConfigType represents a Filter type
+	ConfigType string
 
-	// Filters represents an array of Filter's
-	Filters []Filter
+	// Records represents an array of Filter's
+	Records []Record
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 // ClaimRecords return a list of claim records
-func (f Filter) ClaimRecords() []claimtypes.ClaimRecord {
+func (f Record) ClaimRecords() []claimtypes.ClaimRecord {
 	result := make([]claimtypes.ClaimRecord, 0)
 	for _, filter := range f {
 		result = append(result, filter)
@@ -35,8 +35,8 @@ func (f Filter) ClaimRecords() []claimtypes.ClaimRecord {
 }
 
 // Sum sum all filters into one
-func (f Filters) Sum() Filter {
-	result := make(Filter)
+func (f Records) Sum() Record {
+	result := make(Record)
 	for _, filter := range f {
 		for _, amount := range filter {
 			resultAmount := result.getAmount(amount.Address)
@@ -48,7 +48,7 @@ func (f Filters) Sum() Filter {
 }
 
 // getAccount get an existing account or generate a new one
-func (f Filter) getAmount(address string) claimtypes.ClaimRecord {
+func (f Record) getAmount(address string) claimtypes.ClaimRecord {
 	acc, ok := f[address]
 	if ok {
 		return acc
@@ -59,24 +59,24 @@ func (f Filter) getAmount(address string) claimtypes.ClaimRecord {
 	}
 }
 
-// Filter filters a snapshot based on the filter type,
-// denom and excluded address, and apply the formula
-func (s Snapshot) Filter(
-	filterType FilterType,
+// ApplyConfig apply the configuration to the snaplshot filtering based
+// on the config type, denom and excluded address, and apply the formula to generate
+// the snapshot
+func (s Snapshot) ApplyConfig(
+	configType ConfigType,
 	denom string,
 	formula formula.Value,
 	excludedAddresses []string,
-) Filter {
+) Record {
 	if len(excludedAddresses) > 0 {
 		s.Accounts.excludeAddresses(excludedAddresses...)
 	}
 	s.Accounts.filterDenom(denom)
 
-	filter := make(Filter)
+	filter := make(Record)
 	for address, account := range s.Accounts {
-		// TODO FIXME for the liquidity model
 		amount := account.balanceAmount()
-		if filterType == Staking {
+		if configType == Staking {
 			amount = account.balanceAmount()
 		}
 		claimAmount := formula.Calculate(amount, account.Staked)

@@ -301,7 +301,7 @@ func TestFilter_ClaimRecords(t *testing.T) {
 
 func TestSnapshot_Filter(t *testing.T) {
 	type args struct {
-		filterType        FilterType
+		filterType        ConfigType
 		denom             string
 		formula           formula.Value
 		excludedAddresses []string
@@ -316,7 +316,7 @@ func TestSnapshot_Filter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.snapshot.Filter(tt.args.filterType, tt.args.denom, tt.args.formula, tt.args.excludedAddresses)
+			got := tt.snapshot.ApplyConfig(tt.args.filterType, tt.args.denom, tt.args.formula, tt.args.excludedAddresses)
 			require.Equal(t, tt.want, got)
 		})
 	}
