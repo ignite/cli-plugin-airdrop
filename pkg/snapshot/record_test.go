@@ -299,7 +299,7 @@ func TestFilter_ClaimRecords(t *testing.T) {
 	}
 }
 
-func TestSnapshot_Filter(t *testing.T) {
+func TestSnapshot_ApplyConfig(t *testing.T) {
 	type args struct {
 		filterType        ConfigType
 		denom             string
