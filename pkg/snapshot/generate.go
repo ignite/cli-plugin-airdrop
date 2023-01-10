@@ -10,8 +10,8 @@ import (
 	"github.com/ignite/cli-plugin-airdrop/pkg/encode"
 )
 
-// Generate produce the snapshot of address with the total of atom balance liquid,
-// staked, bounded and unbonding stake
+// Generate produce the airdrop snapshot based on chain
+// state balances and stakes values
 func Generate(genState map[string]json.RawMessage) (Snapshot, error) {
 	var (
 		marshaller   = encode.Codec()

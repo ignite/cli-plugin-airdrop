@@ -39,3 +39,19 @@ func (c Client) Validators(
 	}
 	return resp.Validators, nil
 }
+
+func (c Client) Balances(
+	ctx context.Context,
+	pagination *query.PageRequest,
+	denom string,
+) ([]*banktypes.DenomOwner, error) {
+	req := &banktypes.QueryDenomOwnersRequest{
+		Denom:      denom,
+		Pagination: pagination,
+	}
+	resp, err := c.bankQuery.DenomOwners(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error requesting denom balances: %s", err)
+	}
+	return resp.DenomOwners, nil
+}
