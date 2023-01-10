@@ -19,7 +19,7 @@ func TestAccounts_getAmount(t *testing.T) {
 		accAddr3 = sdk.AccAddress(rand.Str(32)).String()
 	)
 
-	sampleAmounts := Filter{
+	sampleAmounts := Record{
 		accAddr1: {
 			Address:   accAddr1,
 			Claimable: math.NewInt(10),
@@ -31,7 +31,7 @@ func TestAccounts_getAmount(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		a       Filter
+		a       Record
 		address string
 		want    claimtypes.ClaimRecord
 	}{
@@ -74,12 +74,12 @@ func TestFilters_Sum(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		filters Filters
-		want    Filter
+		filters Records
+		want    Record
 	}{
 		{
 			name: "2 filters",
-			filters: Filters{
+			filters: Records{
 				{
 					accAddr1: {
 						Address:   accAddr1,
@@ -105,7 +105,7 @@ func TestFilters_Sum(t *testing.T) {
 					},
 				},
 			},
-			want: Filter{
+			want: Record{
 				accAddr1: {
 					Address:   accAddr1,
 					Claimable: math.NewInt(344),
@@ -122,7 +122,7 @@ func TestFilters_Sum(t *testing.T) {
 		},
 		{
 			name: "3 filters",
-			filters: Filters{
+			filters: Records{
 				{
 					accAddr1: {
 						Address:   accAddr1,
@@ -154,7 +154,7 @@ func TestFilters_Sum(t *testing.T) {
 					},
 				},
 			},
-			want: Filter{
+			want: Record{
 				accAddr1: {
 					Address:   accAddr1,
 					Claimable: math.NewInt(374),
@@ -171,7 +171,7 @@ func TestFilters_Sum(t *testing.T) {
 		},
 		{
 			name: "2 filters different addresses",
-			filters: Filters{
+			filters: Records{
 				{
 					accAddr1: {
 						Address:   accAddr1,
@@ -185,7 +185,7 @@ func TestFilters_Sum(t *testing.T) {
 					},
 				},
 			},
-			want: Filter{
+			want: Record{
 				accAddr1: {
 					Address:   accAddr1,
 					Claimable: math.NewInt(120),
@@ -198,7 +198,7 @@ func TestFilters_Sum(t *testing.T) {
 		},
 		{
 			name: "2 filters same addresses",
-			filters: Filters{
+			filters: Records{
 				{
 					accAddr1: {
 						Address:   accAddr1,
@@ -212,7 +212,7 @@ func TestFilters_Sum(t *testing.T) {
 					},
 				},
 			},
-			want: Filter{
+			want: Record{
 				accAddr1: {
 					Address:   accAddr1,
 					Claimable: math.NewInt(444),
@@ -237,12 +237,12 @@ func TestFilter_ClaimRecords(t *testing.T) {
 
 	tests := []struct {
 		name string
-		f    Filter
+		f    Record
 		want []claimtypes.ClaimRecord
 	}{
 		{
 			name: "list of one claim record",
-			f: Filter{
+			f: Record{
 				accAddr1: claimtypes.ClaimRecord{
 					Address: accAddr1,
 				},
@@ -253,7 +253,7 @@ func TestFilter_ClaimRecords(t *testing.T) {
 		},
 		{
 			name: "list of one claim record",
-			f: Filter{
+			f: Record{
 				accAddr1: claimtypes.ClaimRecord{
 					Address: accAddr1,
 				},
@@ -268,7 +268,7 @@ func TestFilter_ClaimRecords(t *testing.T) {
 		},
 		{
 			name: "list of one claim record",
-			f: Filter{
+			f: Record{
 				accAddr1: claimtypes.ClaimRecord{
 					Address: accAddr1,
 				},
@@ -287,7 +287,7 @@ func TestFilter_ClaimRecords(t *testing.T) {
 		},
 		{
 			name: "empty list",
-			f:    Filter{},
+			f:    Record{},
 			want: []claimtypes.ClaimRecord{},
 		},
 	}
@@ -310,7 +310,7 @@ func TestSnapshot_Filter(t *testing.T) {
 		name     string
 		snapshot Snapshot
 		args     args
-		want     Filter
+		want     Record
 	}{
 		// TODO: Add test cases.
 	}
