@@ -2,11 +2,10 @@
 
 ## Developer instruction
 
-- clone this repo locally
-- Run `ignite plugin add -g /absolute/path/to/cli-plugin-airdrop` to add the plugin to global config
-- `ignite airdrop` command is now available.
+- Clone this repo locally
+- Run `ignite app install -g /absolute/path/to/cli-plugin-airdrop` to install the Ignite App globally.
+- The `ignite airdrop` command is now available.
 
-Then repeat that loop :
-- Hack plugin code
-- Rerun `ignite airdrop` to recompile the plugin and test
-
+Then repeat that loop:
+- Hack app code
+- Re-run `ignite airdrop` to recompile the app and test
