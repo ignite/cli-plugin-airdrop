@@ -1,10 +1,10 @@
 module github.com/ignite/cli-plugin-airdrop
 
-go 1.21.0
+go 1.21.1
 
 require (
 	github.com/hashicorp/go-plugin v1.5.1
-	github.com/ignite/cli v0.27.2
+	github.com/ignite/cli v0.27.2-0.20231110144902-718f27cb581d
 	github.com/spf13/cobra v1.7.0
 )
 
@@ -71,7 +71,7 @@ require (
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.9.1 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
+	google.golang.org/grpc v1.56.3 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
