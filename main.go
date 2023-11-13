@@ -1,57 +1,46 @@
 package main
 
 import (
-	"encoding/gob"
+	"context"
 	"os"
 
 	hplugin "github.com/hashicorp/go-plugin"
+	"github.com/ignite/cli/ignite/services/plugin"
 
 	"github.com/ignite/cli-plugin-airdrop/cmd"
-	"github.com/ignite/cli/ignite/services/plugin"
 )
 
-func init() {
-	gob.Register(plugin.Manifest{})
-	gob.Register(plugin.ExecutedCommand{})
-	gob.Register(plugin.ExecutedHook{})
-}
+type app struct{}
 
-type p struct{}
-
-func (p) Manifest() (plugin.Manifest, error) {
-	m := plugin.Manifest{
-		Name: "airdrop",
-	}
+func (app) Manifest(context.Context) (*plugin.Manifest, error) {
+	m := &plugin.Manifest{Name: "airdrop"}
 	m.ImportCobraCommand(cmd.NewAirdrop(), "ignite")
 	return m, nil
 }
 
-func (p) Execute(c plugin.ExecutedCommand) error {
-	// Remove the first arg "ignite" from OSArgs because our command root is
-	// "airdrop" not "ignite".
-	os.Args = c.OSArgs[1:]
+func (app) Execute(_ context.Context, c *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
+	os.Args = c.OsArgs[1:]
 	return cmd.NewAirdrop().Execute()
 }
 
-func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPre(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPost(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookCleanUp(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
 func main() {
-	pluginMap := map[string]hplugin.Plugin{
-		"cli-plugin-airdrop": &plugin.InterfacePlugin{Impl: &p{}},
-	}
-
 	hplugin.Serve(&hplugin.ServeConfig{
 		HandshakeConfig: plugin.HandshakeConfig(),
-		Plugins:         pluginMap,
+		Plugins: map[string]hplugin.Plugin{
+			"airdrop": plugin.NewGRPC(&app{}),
+		},
+		GRPCServer: hplugin.DefaultGRPCServer,
 	})
 }

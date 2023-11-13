@@ -15,26 +15,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v3.4.0
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
+        if: env.GIT_DIFF
         with:
-          go-version: 1.19
+          go-version: '1.21'
 
       - name: Run unit tests
+        if: env.GIT_DIFF
         run: |
           go test -v -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list ./...)
 
       - name: filter non-testable files
+        if: env.GIT_DIFF
         run: |
           excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER' || true)"
           excludelist+=" $(find ./ -type f -name '*.pb.go')"
@@ -48,6 +48,7 @@ jobs:
           done
 
       - name: Upload coverage to Codecov
+        if: env.GIT_DIFF
         uses: codecov/codecov-action@v3.1.1
         with:
           file: ./coverage.txt
